@@ -1,0 +1,48 @@
+experiment:
+  name: stego_multibranch
+  output_dir: outputs/stego_multibranch
+  seed: 42
+
+dataset:
+  root: data/StegoImageDS
+  csv_path: null
+  cache_dir: data/cache_features
+  bit_depth: 4
+  max_payload_bytes: 8192
+  rgb_size: 256
+  include_variants:
+    - plain
+    - b64
+    - zip
+  train_variants:
+    - plain
+  split_ratios:
+    train: 0.7
+    val: 0.15
+    test: 0.15
+  num_workers: 4
+
+model:
+  image_embed_dim: 256
+  bit_embed_dim: 192
+  payload_embed_dim: 128
+  stats_embed_dim: 64
+  fusion_dim: 384
+  use_variant_head: true
+  dropout: 0.2
+
+train:
+  epochs: 30
+  batch_size: 8
+  lr: 0.0003
+  weight_decay: 0.0001
+  amp: true
+  grad_clip_norm: 1.0
+  label_smoothing: 0.05
+  focal_gamma: 1.5
+  binary_loss_weight: 0.8
+  class_loss_weight: 1.0
+  variant_loss_weight: 0.2
+  balanced_sampler: true
+  early_stopping_patience: 6
+  monitor: val_macro_f1
