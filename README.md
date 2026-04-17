@@ -64,6 +64,48 @@ pip install -r requirements.txt
 python -m src.stegomalware.train --config configs/stego_multibranch.yaml
 ```
 
+## Google Colab Workflow
+
+Use Google Drive for the output directory so checkpoints survive session disconnects:
+
+```python
+from google.colab import drive
+drive.mount("/content/drive")
+```
+
+Install and train:
+
+```bash
+pip install -r requirements.txt
+python -m src.stegomalware.train \
+  --config configs/stego_multibranch.yaml \
+  --output-dir /content/drive/MyDrive/stego_runs/run1
+```
+
+Important checkpoint files:
+
+- `.../checkpoints/latest.pt`: resume from the most recent completed epoch
+- `.../checkpoints/best.pt`: best validation model so far
+- `.../checkpoints/epoch_XXX.pt`: periodic snapshots you can upload into another account
+- `.../checkpoints/interrupted.pt`: written if training is manually interrupted
+
+Resume on another Colab account after uploading or remounting Drive:
+
+```bash
+python -m src.stegomalware.train \
+  --config configs/stego_multibranch.yaml \
+  --output-dir /content/drive/MyDrive/stego_runs/run1 \
+  --resume /content/drive/MyDrive/stego_runs/run1/checkpoints/latest.pt
+```
+
+The current config is already tuned for Colab-style GPUs:
+
+- smaller micro-batch with `accumulation_steps` to preserve effective batch size
+- mixed precision enabled
+- channels-last tensors on CUDA
+- persistent checkpoints every epoch
+- low worker count to avoid DataLoader instability in small Colab runtimes
+
 ## Evaluate
 
 ```bash
@@ -103,3 +145,4 @@ From the paper, the key dataset/model details used here are:
 - the published baseline processes extracted `k`-LSB data with dense subnet stacks
 
 This repository extends that idea into a richer steganalysis + payload-aware architecture.
+# Google-collab-malware-test
